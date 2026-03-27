@@ -38,3 +38,14 @@ docker compose up -d --build
 ```bash
 docker compose exec symfony_php composer install
 ```
+
+### 5. Database Migrations
+```bash
+docker compose exec symfony_php php bin/console doctrine:migrations:migrate --no-interaction
+```
+
+### Optional: Initial Data Import
+To populate your database with the lastest news immediately after setup, run the import command:
+```bash
+docker compose exec symfony_php php bin/console app:import-news
+```
