@@ -3,9 +3,12 @@ FROM php:8.2-fpm
 # Build arguments
 ARG USER_ID=1000
 ARG GROUP_ID=1000
+ARG INSTALL_XDEBUG=false
 
 # Install system dependencies
+# Install system dependencies + $PHPIZE_DEPS für PECL
 RUN apt-get update && apt-get install -y \
+$PHPIZE_DEPS \
 git \
 curl \
 libpng-dev \
@@ -27,6 +30,17 @@ bcmath \
 gd \
 zip \
 intl
+
+RUN if [ "$INSTALL_XDEBUG" = "true" ] ; then \
+        pecl install xdebug \
+        && docker-php-ext-enable xdebug  \
+        && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+        && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+        && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+        && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+    else \
+        echo "Xdebug skip"; \
+    fi
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

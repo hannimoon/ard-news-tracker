@@ -15,18 +15,24 @@ Ensure you have the following installed:
 - **Nginx** (Web Server)
 - **MySQL** (Database)
 - **Composer** (Dependency Manager)
+- **Mailpit** (Mail Testing Tool)
 
 ## Getting Started
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/hannimoon/ard-news-tracker.git
+git clone https://github.com
 cd ard-news-tracker
 ```
 
-### 2. Environment Setup
+### 2. Environment & Docker Setup
+Copy the distribution templates to create your local configuration:
 ```bash
+# Symfony environment variables
 cp .env .env.local
+
+# Local Docker overrides (Xdebug, Mailpit, Ports)
+cp docker-compose.override.yml.dist docker-compose.override.yml
 ```
 
 ### 3. Build and Start Containers
@@ -44,8 +50,23 @@ docker compose exec symfony_php composer install
 docker compose exec symfony_php php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
-### Optional: Initial Data Import
-To populate your database with the lastest news immediately after setup, run the import command:
+## Development Features
+
+### Xdebug
+Xdebug is integrated into the PHP container but must be activated during the build process.
+- **Enable/Disable:** Set `INSTALL_XDEBUG=true` or `false` in your `docker-compose.override.yml`.
+- **Configuration:** To change the Xdebug mode (e.g., from `debug` to `coverage`), you must edit the `xdebug.mode` line directly in the **Dockerfile**.
+- **Apply Changes:** Any changes to Xdebug settings require a rebuild:
+  ```bash
+  docker compose up -d --build
+  ```
+
+### Mail Testing
+You can access the Mailpit Web UI to inspect outgoing emails at:
+[http://localhost:8025](http://localhost:8025)
+
+## Optional: Initial Data Import
+To populate your database with the latest news immediately after setup, run the import command:
 ```bash
 docker compose exec symfony_php php bin/console app:import-news
 ```
