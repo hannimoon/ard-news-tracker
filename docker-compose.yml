@@ -11,6 +11,17 @@ services:
             - symfony_network
         depends_on:
             - database
+    news_worker:
+        build: .
+        command: php bin/console messenger:consume scheduler_news_import -vv
+        restart: always
+        volumes:
+            - .:/var/www/html
+        networks:
+            - symfony_network
+        depends_on:
+            - php
+            - database        
 
     # Nginx Service
     nginx:

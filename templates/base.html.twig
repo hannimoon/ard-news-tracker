@@ -62,6 +62,12 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-{% block javascripts %}{% endblock %}
+{% block javascripts %} 
+    <script>
+        // Extract timezone
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        document.getElementById('user_timezone').value = tz;
+    </script>
+{% endblock %}
 </body>
 </html>

@@ -10,7 +10,6 @@
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###
-/phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
 
@@ -22,7 +21,7 @@
 /.idea/
 
 ###> docker ###
-docker-compose.override.yml
+compose.override.yml
 ###< docker ###
 
 ###> vscode ###

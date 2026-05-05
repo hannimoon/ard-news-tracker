@@ -12,16 +12,31 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'app:import-news',
     description: 'Importiert tagesaktuelle News von der ARD API',
 )]
+/**
+ * Console command to import news from ARD API.
+ *
+ * @author Mandy Vorköper <mandy-vor@gmx.de>
+ */
 class ImportNewsCommand extends Command
 {
     private NewsImporter $importer;
 
+    /**
+     * @param NewsImporter $importer The news importer service
+     */
     public function __construct(NewsImporter $importer)
     {
         parent::__construct();
         $this->importer = $importer;
     }
 
+    /**
+     * Executes the news import command.
+     *
+     * @param InputInterface $input The input interface
+     * @param OutputInterface $output The output interface
+     * @return int The command exit code
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);

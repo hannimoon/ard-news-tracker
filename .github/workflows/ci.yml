@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://symfony:symfony@database:3306/symfony_db?serverVersion=8.0.32&charset=utf8mb4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Start Docker Compose services
+        run: docker compose up -d --build php
+
+      - name: Install Dependencies
+        run: docker compose exec -u root -T php /usr/bin/env COMPOSER_ALLOW_SUPERUSER=1 composer install --prefer-dist --no-progress --no-interaction  
+
+      - name: Run PHPUnit tests
+        run: docker compose exec -u root -T php bash -lc 'APP_ENV=test vendor/bin/phpunit -c phpunit.xml --testsuite all'
+
+      - name: Shutdown Docker Compose
+        if: always()
+        run: docker compose down --volumes

@@ -7,6 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NewsRepository::class)]
+/**
+ * Entity representing a news item.
+ *
+ * @author Mandy Vorköper <mandy-vor@gmx.de>
+ */
 class News
 {
     #[ORM\Id]

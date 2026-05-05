@@ -10,6 +10,11 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
+/**
+ * Unit tests for NewsImporter service.
+ *
+ * @author Mandy Vorköper <mandy-vor@gmx.de>
+ */
 class NewsImporterTest extends TestCase
 {
     private NewsImporter $newsImporter;
@@ -30,6 +35,9 @@ class NewsImporterTest extends TestCase
         );
     }
 
+    /**
+     * Test that import successfully imports news from API.
+     */
     public function testImportSuccessfullyImportsNews(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -72,6 +80,9 @@ class NewsImporterTest extends TestCase
         $this->assertEquals(1, $result);
     }
 
+    /**
+     * Test that import skips duplicate news based on external ID.
+     */
     public function testImportSkipsDuplicateNews(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -114,6 +125,9 @@ class NewsImporterTest extends TestCase
         $this->assertEquals(0, $result);
     }
 
+    /**
+     * Test that import skips news without external ID or share URL.
+     */
     public function testImportSkipsNewsWithoutExternalId(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -150,6 +164,9 @@ class NewsImporterTest extends TestCase
         $this->assertEquals(0, $result);
     }
 
+    /**
+     * Test that import throws exception on API error status.
+     */
     public function testImportHandlesApiError(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -166,6 +183,9 @@ class NewsImporterTest extends TestCase
         $this->newsImporter->import();
     }
 
+    /**
+     * Test that import throws exception on 403 API error.
+     */
     public function testImportHandles403ApiError(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -182,6 +202,9 @@ class NewsImporterTest extends TestCase
         $this->newsImporter->import();
     }
 
+    /**
+     * Test that import handles multiple news items.
+     */
     public function testImportMultipleNews(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -238,6 +261,9 @@ class NewsImporterTest extends TestCase
         $this->assertEquals(3, $result);
     }
 
+    /**
+     * Test sentiment analysis for bad news.
+     */
     public function testSentimentAnalysisForBadNews(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -283,6 +309,9 @@ class NewsImporterTest extends TestCase
         $this->assertEquals('bad', $persistedNews->getSentiment());
     }
 
+    /**
+     * Test sentiment analysis for good news.
+     */
     public function testSentimentAnalysisForGoodNews(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -328,6 +357,9 @@ class NewsImporterTest extends TestCase
         $this->assertEquals('good', $persistedNews->getSentiment());
     }
 
+    /**
+     * Test sentiment analysis for neutral news.
+     */
     public function testSentimentAnalysisForNeutralNews(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -373,6 +405,9 @@ class NewsImporterTest extends TestCase
         $this->assertEquals('neutral', $persistedNews->getSentiment());
     }
 
+    /**
+     * Test that import handles HTTP client exceptions.
+     */
     public function testImportHandlesHttpClientException(): void
     {
         $this->httpClient
@@ -386,6 +421,9 @@ class NewsImporterTest extends TestCase
         $this->newsImporter->import();
     }
 
+    /**
+     * Test that import handles missing optional fields gracefully.
+     */
     public function testImportHandlesMissingOptionalFields(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -430,6 +468,9 @@ class NewsImporterTest extends TestCase
         $this->assertEquals('none', $persistedNews->getType());
     }
 
+    /**
+     * Test that import uses share URL as fallback for external ID.
+     */
     public function testImportUsesShareurlAsFallbackForExternalId(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
@@ -476,6 +517,9 @@ class NewsImporterTest extends TestCase
         $this->assertEquals('https://example.com/news-1', $persistedNews->getExternalId());
     }
 
+    /**
+     * Test that import handles empty news array.
+     */
     public function testImportWithEmptyNewsArray(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
