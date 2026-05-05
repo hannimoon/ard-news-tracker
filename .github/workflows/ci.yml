@@ -25,6 +25,15 @@ jobs:
       - name: Start Docker Compose services
         run: docker compose up -d --build database php
 
+      - name: Wait for PHP container
+        run: |
+          for i in $(seq 1 30); do
+            docker compose exec php php -v && exit 0
+            sleep 1
+          done
+          echo "PHP container failed to start"
+          exit 1
+
       - name: Install dependencies
         run: |
           docker compose exec php git config --global --add safe.directory /var/www/html
