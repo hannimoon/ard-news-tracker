@@ -8,6 +8,8 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<News>
+ *
+ * @author Mandy Vorköper <mandy-vor@gmx.de>
  */
 class NewsRepository extends ServiceEntityRepository
 {
