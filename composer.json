@@ -1,4 +1,6 @@
 {
+    "name": "hannimoon/ard-news-tracker",
+    "description": "ARD News Tracker application",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
