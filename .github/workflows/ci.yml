@@ -32,7 +32,9 @@ jobs:
         run: docker compose up -d --build database php
 
       - name: Install dependencies
-        run: docker compose exec php composer install --prefer-dist --no-progress --no-suggest --no-interaction
+        run: |
+          docker compose exec php git config --global --add safe.directory /var/www/html
+          docker compose exec php composer install --prefer-dist --no-progress --no-suggest --no-interaction
 
       - name: Wait for MySQL
         run: |
