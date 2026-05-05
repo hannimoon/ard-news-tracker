@@ -25,11 +25,8 @@ jobs:
       - name: Start Docker Compose services
         run: docker compose up -d --build php
 
-      - name: Fix permissions
-        run: docker compose exec -T php chown -R www-data:www-data /var/www/html
-
       - name: Install Dependencies
-        run: docker compose exec -T php composer install --prefer-dist --no-progress --no-interaction   
+        run: docker compose exec -u root -T php /usr/bin/env COMPOSER_ALLOW_SUPERUSER=1 composer install --prefer-dist --no-progress --no-interaction  
 
       - name: Run PHPUnit tests
         run: docker compose exec php bash -lc 'APP_ENV=test" vendor/bin/phpunit -c phpunit.xml --testsuite all'
