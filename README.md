@@ -15,7 +15,6 @@ Ensure you have the following installed:
 - **Nginx** (Web Server)
 - **MySQL** (Database)
 - **Composer** (Dependency Manager)
-- **Mailpit** (Mail Testing Tool)
 
 ## Getting Started
 
@@ -33,6 +32,17 @@ cp .env .env.local
 
 # Local Docker overrides (Xdebug, Mailpit, Ports)
 cp docker-compose.override.yml.dist docker-compose.override.yml
+```
+
+### 2.1. Generate `APP_API_KEY`
+Generate a secure API key and set it in `.env.local`:
+```bash
+# Generate a 64-character hex key
+openssl rand -hex 32
+```
+Update `.env.local` with the generated value:
+```dotenv
+APP_API_KEY=your-generated-key-here
 ```
 
 ### 3. Build and Start Containers
@@ -61,9 +71,53 @@ Xdebug is integrated into the PHP container but must be activated during the bui
   docker compose up -d --build
   ```
 
-### Mail Testing
-You can access the Mailpit Web UI to inspect outgoing emails at:
-[http://localhost:8025](http://localhost:8025)
+### Mail configuration
+The application uses Symfony Mailer. Configure the mail transport in your `.env.local` file with `MAILER_DSN`.
+
+Example SMTP configuration:
+```dotenv
+MAILER_DSN=smtp://user:pass@smtp.example.com:587
+```
+
+For a local development setup, you can use a null transport to disable outgoing mail:
+```dotenv
+MAILER_DSN=null://null
+```
+
+If you want to test email delivery locally, replace the DSN with a local SMTP service or mail testing container of your choice.
+
+## News API Usage
+The application exposes a protected news API endpoint at `/api/news`.
+
+### Available query parameters
+- `region` — filter by region
+- `date` — filter by date (`YYYY-MM-DD`)
+- `sentiment` — filter by sentiment (`good`, `bad`, `neutral`)
+- `type` — filter by type (`story`, `webview`)
+- `page` — pagination page number (default: `1`)
+- `limit` — number of items per page (default: `10`)
+
+### Authentication
+The endpoint supports:
+- `Authorization: Bearer <JWT token>`
+- `X-API-KEY: <api-key>`
+
+### Example request
+```bash
+curl "http://localhost:8080/api/news?region=DE&date=2026-05-12&type=story&page=1&limit=10" \
+  -H "Authorization: Bearer <JWT_TOKEN>"
+```
+
+### API documentation
+Browse the generated OpenAPI docs at:
+- `http://localhost:8080/api/doc`
+
+## CronConfig / Scheduled Import
+The application stores a single cron configuration in the database using the `CronConfig` entity. This configuration controls automatic news imports and includes:
+- `scheduleTime` — the UTC time when the import should run each day (format `HH:MM`, default `03:00`)
+- `isActive` — whether the scheduled import is enabled
+
+The scheduler uses this config to generate a daily cron job for `NewsImportMessage` if cron import is active. The admin dashboard exposes controls to update the schedule time and enable or disable the automatic import.
 
 ## Optional: Initial Data Import
 To populate your database with the latest news immediately after setup, run the import command:

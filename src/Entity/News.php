@@ -5,8 +5,10 @@ namespace App\Entity;
 use App\Repository\NewsRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use OpenApi\Attributes as OA;
 
 #[ORM\Entity(repositoryClass: NewsRepository::class)]
+#[OA\Schema(description: "One news item with all relevant information.")]
 /**
  * Entity representing a news item.
  *
@@ -17,6 +19,7 @@ class News
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[OA\Property(description: "The unique ID", example: 1)]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -29,12 +32,14 @@ class News
     private ?string $content = null;
 
     #[ORM\Column]
+    #[OA\Property(description: "Publishing date", type: "string", format: "date")]
     private ?\DateTime $datePublished = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $url = null;
 
     #[ORM\Column(length: 255)]
+    #[OA\Property(description: "Sentiment of news (good, bad, neutral)", type: "string", example: "good")]
     private ?string $sentiment = null;
 
     #[ORM\Column(length: 255)]

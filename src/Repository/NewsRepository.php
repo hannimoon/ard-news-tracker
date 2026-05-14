@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\News;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * @extends ServiceEntityRepository<News>
@@ -18,28 +19,46 @@ class NewsRepository extends ServiceEntityRepository
         parent::__construct($registry, News::class);
     }
 
-    //    /**
-    //     * @return News[] Returns an array of News objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('n')
-    //            ->andWhere('n.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('n.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findFilteredNews(?string $region, ?string $date, ?string $sentiment, ?string $type, int $page, int $limit): array
+    {
+        $qb = $this->createQueryBuilder('n')
+            ->orderBy('n.datePublished', 'DESC');
 
-    //    public function findOneBySomeField($value): ?News
-    //    {
-    //        return $this->createQueryBuilder('n')
-    //            ->andWhere('n.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($region) {
+            $qb->andWhere('n.region = :region')
+               ->setParameter('region', $region);
+        }
+
+        if ($date) {
+            $qb->andWhere('n.datePublished = :date')
+               ->setParameter('date', new \DateTime($date));
+        }
+
+        if ($sentiment !== null) {
+            $qb->andWhere('n.sentiment = :sentiment')
+               ->setParameter('sentiment', $sentiment);
+        }
+        
+        if ($type) {
+            $qb->andWhere('n.type = :type')
+               ->setParameter('type', $type);
+        }
+
+        // Pagination Logik
+        $qb->setFirstResult(($page - 1) * $limit)
+           ->setMaxResults($limit);
+
+        $paginator = new Paginator($qb);
+        $totalItems = count($paginator);
+
+        return [
+            'data' => $qb->getQuery()->getArrayResult(),
+            'meta' => [
+                'total' => $totalItems,
+                'page' => $page,
+                'limit' => $limit,
+                'pages' => ceil($totalItems / $limit)
+            ]
+        ];
+    }
 }
