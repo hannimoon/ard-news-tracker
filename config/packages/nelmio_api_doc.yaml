@@ -1,0 +1,23 @@
+nelmio_api_doc:
+    documentation:
+        components:
+            securitySchemes:
+                BearerAuth: # Name für JWT
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+                ApiKeyAuth: # Name für API-Key
+                    type: apiKey
+                    in: header
+                    name: X-API-KEY
+        security:
+            - BearerAuth: []
+            - ApiKeyAuth: []
+        info:
+            title: News Tracker API
+            description: API for tracking news articles from various sources.
+            version: 1.0.0
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+        

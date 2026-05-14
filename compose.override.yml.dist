@@ -5,20 +5,6 @@ services:
       - "5432:5432" # Expose PostgreSQL port to the host
 ###< doctrine/doctrine-bundle ###
 
-###> symfony/mailer ###
-  mailer:
-    image: axllent/mailpit
-    container_name: symfony_mailer
-    ports:
-      - "1025:1025" # SMTP port
-      - "8025:8025" # Web UI port
-    environment:
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
-    networks:
-      - symfony_network
-###< symfony/mailer ###
-
   php:
     build:
       context: .
