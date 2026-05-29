@@ -71,21 +71,6 @@ Xdebug is integrated into the PHP container but must be activated during the bui
   docker compose up -d --build
   ```
 
-### Mail configuration
-The application uses Symfony Mailer. Configure the mail transport in your `.env.local` file with `MAILER_DSN`.
-
-Example SMTP configuration:
-```dotenv
-MAILER_DSN=smtp://user:pass@smtp.example.com:587
-```
-
-For a local development setup, you can use a null transport to disable outgoing mail:
-```dotenv
-MAILER_DSN=null://null
-```
-
-If you want to test email delivery locally, replace the DSN with a local SMTP service or mail testing container of your choice.
-
 ## News API Usage
 The application exposes a protected news API endpoint at `/api/news`.
 
