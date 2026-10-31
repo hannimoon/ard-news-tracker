@@ -23,10 +23,38 @@ jobs:
         run: composer validate --strict
 
       - name: Start Docker Compose services
-        run: docker compose up -d --build php
+        run: docker compose up -d --build
+
+      - name: Wait for MySQL to be ready
+        run: |
+          echo "Waiting for MySQL to start..."
+          for i in {1..30}; do
+            if docker compose exec -T php php -r "
+              \$ele = @fsockopen('database', 3306);
+              if (\$ele) { fclose(\$ele); exit(0); }
+              exit(1);
+            "; then
+              echo "MySQL is up and running!"
+              exit 0
+            fi
+            echo "MySQL not ready yet, retrying in 1 second..."
+            sleep 1
+          done
+          echo "Timeout waiting for MySQL"
+          exit 1
 
       - name: Install Dependencies
         run: docker compose exec -u root -T php /usr/bin/env COMPOSER_ALLOW_SUPERUSER=1 composer install --prefer-dist --no-progress --no-interaction  
+
+   
+      - name: Run Doctrine Database Migrations (Dev Env)
+        run: docker compose exec -T php php bin/console doctrine:migrations:migrate --no-interaction
+
+      - name: Install Frontend Assets (AssetMapper)
+        run: docker compose exec -u root -T php php bin/console importmap:install --env=test
+
+      - name: Initialize Symfony UX Assets
+        run: docker compose exec -u root -T php php bin/console assets:install --env=test
 
       - name: Run PHPUnit tests
         run: docker compose exec -u root -T php bash -lc 'APP_ENV=test vendor/bin/phpunit -c phpunit.xml --testsuite all'
