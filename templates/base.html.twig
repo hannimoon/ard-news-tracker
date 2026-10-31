@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+      {# say turbo that assets should be load and track only once #}
+    <meta name="turbo-track" content="reload">
+    
+    {# force turbo to merge head area instead of duplicate #}
+    <meta name="turbo-visit-control" content="reload">
+
     <title>{% block title %}ARD News Tracker{% endblock %}</title>
 
     <!-- Bootstrap 5 CSS -->
@@ -63,10 +69,13 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 {% block javascripts %} 
+    {{ importmap('app') }}
     <script>
         // Extract timezone
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        document.getElementById('user_timezone').value = tz;
+        (function() {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            document.getElementById('user_timezone').value = tz;
+        })();
     </script>
 {% endblock %}
 </body>

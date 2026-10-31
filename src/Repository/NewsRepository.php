@@ -61,4 +61,23 @@ class NewsRepository extends ServiceEntityRepository
             ]
         ];
     }
+
+
+    /**
+     *
+     * Returns the number of imported news items per day for the last six months.
+     *
+     * @return array An array of arrays, each containing 'dateStr' and 'count' keys.
+     */
+    public function countImportedNewsPerDay(): array
+    {
+        return $this->createQueryBuilder('n')
+            ->select("SUBSTRING(n.importedAt, 1, 10) as dateStr, COUNT(n.id) as count")
+            ->where('n.importedAt >= :minusSixMonths')
+            ->setParameter('minusSixMonths', (new \DateTime())->modify('-6 months')->format('Y-m-d H:i:s'))
+            ->groupBy('dateStr')
+            ->orderBy('dateStr', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

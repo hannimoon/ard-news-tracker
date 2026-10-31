@@ -18,46 +18,73 @@
 </div>
 
 <div class="row g-4">
-    <!-- Statistik Karte -->
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
+      <!-- Statistik & Chart Karte -->
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <h6 class="text-muted text-uppercase small fw-bold mb-3">Gespeicherte News</h6>
-                <div class="d-flex align-items-center">
-                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 me-3">
-                        <i class="fas fa-database fa-2x"></i>
+                <div class="row align-items-center mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">Gespeicherte News</h6>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 me-3">
+                                <i class="fas fa-database fa-2x"></i>
+                            </div>
+                            <h2 class="display-6 fw-bold mb-0">{{ total_news }}</h2>
+                        </div>
                     </div>
-                    <h2 class="display-6 fw-bold mb-0">{{ total_news }}</h2>
+                    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                        <span class="small text-muted">Import-Verlauf der letzten 6 Monate</span>
+                    </div>
                 </div>
+                
+            {% if chart is defined and chart is not null and chart is not empty %}   
+                <div class="chart-wrapper mt-2" style="height: 300px; position: relative;">
+                    {{ render_chart(chart) }}
+                </div>
+            {% else %}
+                <div class="alert alert-light border text-center text-muted mt-2 py-4">
+                    <i class="fas fa-chart-bar me-2"></i>Keine Chart-Daten für den Verlauf verfügbar.
+                </div>
+            {% endif %}
+
             </div>
         </div>
     </div>
 
     <!-- Cronjob Einstellungen -->
-    <div class="col-md-8">
-        <form action="{{ path('admin_cron_save') }}" method="POST">
+    <div class="col-md-12">
+        <form action="{{ path('admin_cron_save') }}" method="POST" autocomplete="off">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom-0 pt-3 fw-bold">
                     <i class="fas fa-clock me-2 text-secondary"></i>Automatisierung
                 </div>
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="form-check form-switch me-4">
-                            <input class="form-check-input" type="checkbox" id="cronStatus" name="cron_active"  
-                                {{ cron_config and cron_config.isActive ? 'checked' : '' }}>
-                            <label class="form-check-label fw-bold" for="cronStatus">Täglicher Import aktiv</label>
+                    <div class="row align-items-center justify-content-between g-3 w-50 m-0">
+                        <!-- Links: Switch Schalter -->
+                        <div class="col-auto p-0">
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input js-cron-status" type="checkbox" id="cronStatus" name="cron_active"  
+                                    {{ cron_config and cron_config.isActive ? 'checked' : '' }}>
+                                <label class="form-check-label fw-bold" for="cronStatus">Täglicher Import aktiv</label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row align-items-end g-2">
-                        <div class="col-sm-4">
-                            <label class="small text-muted mb-1">Import Uhrzeit</label>
-                            <input type="hidden" name="user_timezone" id="user_timezone" value="UTC">
-                            <input type="time" class="form-control" name="schedule_time" 
-                                value="{{ localized_time }}">
+                        <!-- Mitte: Zeit-Eingabe -->
+                        <div class="col-auto p-0">
+                            <div class="d-flex align-items-center">
+                                <label class="small text-muted me-2 text-nowrap js-cron-label {{ not (cron_config and cron_config.isActive) ? 'text-opacity-50' : '' }}" for="schedule_time">Import Uhrzeit:</label>
+                                <input type="hidden" name="user_timezone" id="user_timezone" value="UTC">
+                                
+                                <input type="time" class="form-control form-control-sm js-cron-time" id="schedule_time" name="schedule_time" style="min-width: 110px;"
+                                    value="{{ localized_time }}"
+                                    {{ not (cron_config and cron_config.isActive) ? 'disabled readonly' : '' }}>
+                            </div>
                         </div>
-                        <div class="col-sm-4">
-                            <button class="btn btn-primary w-100" type="submit">Speichern</button>
+
+                        <!-- Rechts: Speichern Button -->
+                        <div class="col-auto p-0">
+                            <!-- WICHTIG: Wenn isActive inaktiv ist, MUSS der Button standardmäßig disabled sein -->
+                            <button class="btn btn-primary btn-sm px-4 js-cron-submit" id="saveButton" type="submit" disabled>Speichern</button>
                         </div>
                     </div>
                 </div>
