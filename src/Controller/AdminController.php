@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Process\Process;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 
 /**
  * Admin controller for managing news import and cron configuration.
@@ -22,6 +24,10 @@ use Symfony\Component\Process\Process;
  */
 class AdminController extends AbstractController
 {
+     public function __construct(
+        private readonly ChartBuilderInterface $chartBuilder
+    ) {}
+
     /**
      * Displays the admin dashboard with news count and cron config.
      *
@@ -37,11 +43,15 @@ class AdminController extends AbstractController
                           CronConfigRepository $cronConfigRepository,
                           TimezoneManager $tzManager,): Response
     {
+
         // Holt die Anzahl der News für das Dashboard
         $totalNews = $newsRepository->count([]);
         $config = $cronConfigRepository->findOneBy([]);
          $userTz = $request->getSession()->get('user_timezone', 'Europe/Berlin');
 
+         // Chart daten holen
+        $rawChartData = $newsRepository->countImportedNewsPerDay();
+        
         $localizedTime = $config 
             ? $tzManager->utcToLocal($config->getScheduleTime(), $userTz) 
             : '08:00';
@@ -49,7 +59,8 @@ class AdminController extends AbstractController
         return $this->render('admin/index.html.twig', [
             'total_news' => $totalNews,
             'cron_config' => $config,
-            'localized_time' => $localizedTime
+            'localized_time' => $localizedTime,
+            'chart' => $this->prepareChart($rawChartData),
         ]);
     }
 
@@ -111,6 +122,52 @@ class AdminController extends AbstractController
         $this->addFlash('success', 'Einstellungen wurden gespeichert.');
 
         return $this->redirectToRoute('admin_dashboard');
+    }
+
+    /**
+     * Prepares and configures the UX Chart based on raw daily news counts.
+     *
+     * @param array $rawChartData Raw data containing keys 'dateStr' and 'count'
+     * @return Chart The configured line chart
+     */
+    private function prepareChart(array $rawChartData): Chart
+    {
+        $labels = [];
+        $data = [];
+
+        foreach ($rawChartData as $row) {
+            $labels[] = $row['dateStr'];
+            $data[] = $row['count'];
+        }
+
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_LINE);
+        $chart->setData([
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => 'Importierte ARD Nachrichten',
+                    'backgroundColor' => 'rgba(2, 119, 189, 0.1)',
+                    'borderColor' => 'rgba(2, 119, 189, 1)',
+                    'data' => $data,
+                    'tension' => 0.3,
+                    'fill' => true,
+                ],
+            ],
+        ]);
+
+        $chart->setOptions([
+            'scales' => [
+                'y' => [
+                    'suggestedMin' => 0,
+                    'ticks' => [
+                        'stepSize' => 1,
+                    ],
+                ],
+            ],
+            'maintainAspectRatio' => false,
+        ]);
+
+        return $chart;
     }
 
 }

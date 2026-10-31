@@ -44,7 +44,19 @@ class News
 
     #[ORM\Column(length: 255)]
     private ?string $type = null;
+    
+    #[ORM\Column(
+        type: Types::DATETIME_IMMUTABLE,
+        nullable: false,
+        columnDefinition: "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER date_published"
+    )]
+    
+    private \DateTimeImmutable $importedAt;
 
+    public function __construct()
+    {
+        $this->importedAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -56,7 +68,7 @@ class News
         return $this->externalId;
     }
 
-    public function setExternalId(string $externalId): static
+    public function setExternalId(string $externalId): self
     {
         $this->externalId = $externalId;
 
@@ -68,7 +80,7 @@ class News
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(string $title): self
     {
         $this->title = $title;
 
@@ -80,7 +92,7 @@ class News
         return $this->content;
     }
 
-    public function setContent(?string $content): static
+    public function setContent(?string $content): self
     {
         $this->content = $content;
 
@@ -92,7 +104,7 @@ class News
         return $this->datePublished;
     }
 
-    public function setDatePublished(\DateTime $datePublished): static
+    public function setDatePublished(\DateTime $datePublished): self
     {
         $this->datePublished = $datePublished;
 
@@ -104,7 +116,7 @@ class News
         return $this->url;
     }
 
-    public function setUrl(?string $url): static
+    public function setUrl(?string $url): self
     {
         $this->url = $url;
 
@@ -116,7 +128,7 @@ class News
         return $this->sentiment;
     }
 
-    public function setSentiment(string $sentiment): static
+    public function setSentiment(string $sentiment): self
     {
         $this->sentiment = $sentiment;
 
@@ -134,8 +146,20 @@ class News
     /**
      * @param string|null $type
      */
-    public function setType(?string $type): void
+    public function setType(?string $type): self
     {
         $this->type = $type;
+        return $this;
+    }
+
+    public function getImportedAt(): \DateTimeImmutable
+    {
+        return $this->importedAt;
+    }
+
+    public function setImportedAt(\DateTimeImmutable $importedAt): self
+    {
+        $this->importedAt = $importedAt;
+        return $this;
     }
 }
